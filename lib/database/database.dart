@@ -47,9 +47,9 @@ class DatabaseHelper {
   Future<List<Note>> getNoteList() async {
     final List<Map<String, dynamic>> noteMapList = await getNoteMapList();
     final List<Note> noteList = [];
-    noteMapList.forEach((noteMap) {
+    for (var noteMap in noteMapList) {
       noteList.add(Note.fromMap(noteMap));
-    });
+    }
     noteList.sort((noteA, noteB) => noteA.date!.compareTo(noteB.date!));
     return noteList;
   }
@@ -60,6 +60,7 @@ class DatabaseHelper {
       noteTable,
       note.toMap(),
     );
+    return result;
   }
 
   Future<int> updateNote(Note note) async {

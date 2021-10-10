@@ -1,5 +1,5 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:get_sqflite_temp1/add_note_screen.dart';
 import 'package:get_sqflite_temp1/database/database.dart';
 import 'package:get_sqflite_temp1/models/note_model.dart';
@@ -17,7 +17,7 @@ class _HomePageState extends State<HomePage> {
 
   final DateFormat _dateFormatter = DateFormat('MMM dd, yyyy');
 
-  DatabaseHelper _databaseHelper = DatabaseHelper.instance;
+  final DatabaseHelper _databaseHelper = DatabaseHelper.instance;
 
   @override
   void initState() {
@@ -46,7 +46,7 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               subtitle: Text(
-                '${_dateFormatter.format(note.date!)}',
+                _dateFormatter.format(note.date!),
                 style: TextStyle(
                   fontSize: 15,
                   color: Colors.white,
@@ -55,8 +55,31 @@ class _HomePageState extends State<HomePage> {
                       : TextDecoration.lineThrough,
                 ),
               ),
+              trailing: Checkbox(
+                onChanged: (value) {
+                  note.status = value! ? 1 : 0;
+                  DatabaseHelper.instance.updateNote(note);
+                  _updateNoteList();
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => HomePage(),
+                    ),
+                  );
+                },
+                activeColor: Theme.of(context).primaryColor,
+                value: note.status == 1 ? true : false,
+              ),
               onTap: () {
-                Get.to(() => AddNoteScreen());
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => AddNoteScreen(
+                      updateNoteList: _updateNoteList,
+                      note: note,
+                    ),
+                  ),
+                );
               }),
           Divider(
             height: 5.0,
@@ -70,63 +93,73 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.blueAccent,
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Theme.of(context).primaryColor,
-        onPressed: () {
-          Get.to(() => AddNoteScreen());
-        },
-        child: Icon(Icons.add),
-      ),
-      body: FutureBuilder(
-          future: _noteList,
-          builder: (context, AsyncSnapshot snapshot) {
-            if (!snapshot.hasData) {
-              return Center(
-                child: CircularProgressIndicator(),
-              );
-            }
-
-            final int completeNoteCount = snapshot.data!
-                .where((Note note) => note.status == 1)
-                .toList()
-                .length;
-            return ListView.builder(
-              itemCount: int.parse(snapshot.data!.length.toString()) + 1,
-              itemBuilder: (BuildContext context, int index) {
-                if (index == 0) {
-                  return Padding(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 40.0, vertical: 20.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Task',
-                          style: TextStyle(
-                              color: Colors.deepPurple,
-                              fontSize: 40,
-                              fontWeight: FontWeight.bold),
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Text(
-                          '$completeNoteCount of ${snapshot.data.length}',
-                          style: TextStyle(
-                              color: Colors.deepPurple,
-                              fontSize: 20,
-                              fontWeight: FontWeight.w600),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-                return _buildNote(snapshot.data![index - 1]);
-              },
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: Scaffold(
+        backgroundColor: Colors.blueAccent,
+        floatingActionButton: FloatingActionButton(
+          backgroundColor: Theme.of(context).primaryColor,
+          onPressed: () {
+            Navigator.push(
+              context,
+              CupertinoPageRoute(
+                builder: (_) => AddNoteScreen(
+                  updateNoteList: _updateNoteList,
+                ),
+              ),
             );
-          }),
+          },
+          child: Icon(Icons.add),
+        ),
+        body: FutureBuilder(
+            future: _noteList,
+            builder: (context, AsyncSnapshot snapshot) {
+              if (!snapshot.hasData) {
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+
+              final int completeNoteCount = snapshot.data!
+                  .where((Note note) => note.status == 1)
+                  .toList()
+                  .length;
+              return ListView.builder(
+                itemCount: int.parse(snapshot.data!.length.toString()) + 1,
+                itemBuilder: (BuildContext context, int index) {
+                  if (index == 0) {
+                    return Padding(
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 40.0, vertical: 20.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Task',
+                            style: TextStyle(
+                                color: Colors.deepPurple,
+                                fontSize: 40,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Text(
+                            '$completeNoteCount of ${snapshot.data.length}',
+                            style: TextStyle(
+                                color: Colors.deepPurple,
+                                fontSize: 20,
+                                fontWeight: FontWeight.w600),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+                  return _buildNote(snapshot.data![index - 1]);
+                },
+              );
+            }),
+      ),
     );
   }
 }

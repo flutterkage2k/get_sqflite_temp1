@@ -27,7 +27,7 @@ class Note {
       id: map['id'],
       title: map['title'],
       dec: map['dec'],
-      date: map['date'],
+      date: DateTime.parse(map['date']),
       status: map['status'],
     );
   }
