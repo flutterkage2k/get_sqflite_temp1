@@ -35,11 +35,24 @@ class _HomePageState extends State<HomePage> {
       child: Column(
         children: [
           ListTile(
+              leading: CircleAvatar(
+                foregroundColor: Colors.white,
+                backgroundColor: Colors.deepPurpleAccent,
+                radius: 35,
+                child: Text(
+                  note.title!,
+                  style: TextStyle(
+                    fontSize: 18,
+                    decoration: note.status == 0
+                        ? TextDecoration.none
+                        : TextDecoration.lineThrough,
+                  ),
+                ),
+              ),
               title: Text(
-                note.title!,
+                note.dec!,
                 style: TextStyle(
                   fontSize: 18,
-                  color: Colors.white,
                   decoration: note.status == 0
                       ? TextDecoration.none
                       : TextDecoration.lineThrough,
@@ -49,7 +62,6 @@ class _HomePageState extends State<HomePage> {
                 _dateFormatter.format(note.date!),
                 style: TextStyle(
                   fontSize: 15,
-                  color: Colors.white,
                   decoration: note.status == 0
                       ? TextDecoration.none
                       : TextDecoration.lineThrough,
@@ -67,7 +79,6 @@ class _HomePageState extends State<HomePage> {
                     ),
                   );
                 },
-                activeColor: Theme.of(context).primaryColor,
                 value: note.status == 1 ? true : false,
               ),
               onTap: () {
@@ -82,9 +93,9 @@ class _HomePageState extends State<HomePage> {
                 );
               }),
           Divider(
-            height: 5.0,
+            height: 2.0,
             color: Colors.deepPurple,
-            thickness: 2.0,
+            thickness: 1.0,
           ),
         ],
       ),
@@ -96,9 +107,7 @@ class _HomePageState extends State<HomePage> {
     return WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
-        backgroundColor: Colors.blueAccent,
         floatingActionButton: FloatingActionButton(
-          backgroundColor: Theme.of(context).primaryColor,
           onPressed: () {
             Navigator.push(
               context,
@@ -138,17 +147,17 @@ class _HomePageState extends State<HomePage> {
                             'Task',
                             style: TextStyle(
                                 color: Colors.deepPurple,
-                                fontSize: 40,
+                                fontSize: 35,
                                 fontWeight: FontWeight.bold),
                           ),
                           SizedBox(
                             height: 10,
                           ),
                           Text(
-                            '$completeNoteCount of ${snapshot.data.length}',
+                            '$completeNoteCount   of    ${snapshot.data.length}',
                             style: TextStyle(
                                 color: Colors.deepPurple,
-                                fontSize: 20,
+                                fontSize: 16,
                                 fontWeight: FontWeight.w600),
                           ),
                         ],
